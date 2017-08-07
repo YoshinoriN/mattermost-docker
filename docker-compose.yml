@@ -3,7 +3,7 @@ version: "2"
 services:
 
   db:
-    build: db
+    build: postgres
     restart: unless-stopped
     volumes:
       - ./volumes/db/var/lib/postgresql/data:/var/lib/postgresql/data
@@ -19,10 +19,7 @@ services:
     #  - AWS_REGION=us-east-1
 
   app:
-    build:
-      context: app
-      # comment out for team edition
-      dockerfile: Dockerfile-enterprise
+    build: mattermost
     restart: unless-stopped
     volumes:
       - ./volumes/app/mattermost/config:/mattermost/config:rw
@@ -40,7 +37,7 @@ services:
       - db:db
 
   web:
-    build: web
+    build: nginx
     ports:
       - "80:80"
       - "443:443"
