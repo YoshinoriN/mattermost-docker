@@ -3,7 +3,7 @@ version: "2"
 services:
 
   db:
-    build: postgres
+    build: db
     restart: unless-stopped
     volumes:
       - ./volumes/db/var/lib/postgresql/data:/var/lib/postgresql/data
@@ -19,7 +19,7 @@ services:
     #  - AWS_REGION=us-east-1
 
   app:
-    build: mattermost
+    build: app
     restart: unless-stopped
     volumes:
       - ./volumes/app/mattermost/config:/mattermost/config:rw
