@@ -19,7 +19,11 @@ services:
     #  - AWS_REGION=us-east-1
 
   app:
-    build: app
+    build:
+      context: app
+      # comment out 2 following lines for team edition
+      args:
+        - edition=team
     restart: unless-stopped
     volumes:
       - ./volumes/app/mattermost/config:/mattermost/config:rw
@@ -33,5 +37,3 @@ services:
       - MM_DBNAME=mattermost
       # in case your config is not in default location
       #- MM_CONFIG=/mattermost/config/config.json
-    links:
-      - db:db

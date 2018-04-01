@@ -1,32 +1,40 @@
-FROM ubuntu:16.04
+FROM alpine:3.6
 
 # Some ENV variables
 ENV PATH="/mattermost/bin:${PATH}"
 ENV MM_VERSION=4.8.0
 
-# Install some needed packages
-RUN apt-get update \
-    && apt-get -y install \
-      curl \
-      jq \
-      netcat \
-    && rm -rf /var/lib/apt/lists/*
+# Build argument to set Mattermost edition
+ARG edition=enterprise
 
-# Prepare Mattermost
+# Install some needed packages
+RUN apk add --no-cache \
+	ca-certificates \
+	curl \
+	jq \
+	libc6-compat \
+	libffi-dev \
+	linux-headers \
+	mailcap \
+	netcat-openbsd \
+	xmlsec-dev \
+	&& rm -rf /tmp/*
+
+# Get Mattermost
 RUN mkdir -p /mattermost/data \
-    && curl https://releases.mattermost.com/$MM_VERSION/mattermost-team-$MM_VERSION-linux-amd64.tar.gz | tar -xvz \
+    && if [ "$edition" = "team" ] ; then curl https://releases.mattermost.com/$MM_VERSION/mattermost-team-$MM_VERSION-linux-amd64.tar.gz | tar -xvz ; \
+      else curl https://releases.mattermost.com/$MM_VERSION/mattermost-$MM_VERSION-linux-amd64.tar.gz | tar -xvz ; fi \
     && cp /mattermost/config/config.json /config.json.save \
     && rm -rf /mattermost/config/config.json
 
-# Configure entrypoint
-COPY docker-entry.sh /
-# Set permission (TODO should be removed and replace by a chmod on the file in the repository ?)
-RUN chmod +x /docker-entry.sh
-ENTRYPOINT ["/docker-entry.sh"]
+# Configure entrypoint and command
+COPY entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
+WORKDIR /mattermost
+CMD ["platform"]
 
+# Expose port 80 of the container
 EXPOSE 80
 
+# Use a volume for the data directory
 VOLUME /mattermost/data
-
-WORKDIR /mattermost/bin
-CMD ["platform"]

@@ -1,18 +1,24 @@
 FROM postgres:10.3
 
-RUN apt-get update \
-    && apt-get install -y python-dev libffi-dev libssl-dev lzop pv daemontools curl build-essential \
+ENV DEFAULT_TIMEZONE UTC
+
+# Install some packages to use WAL
+RUN apk add --no-cache \
+      build-base \
+      curl \
+      libc6-compat \
+      libffi-dev \
+      linux-headers \
+      python-dev \
+      py-cryptography \
     && curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python \
-    && pip install 'wal-e<1.0.0' \
-    && apt-get remove -y build-essential python-dev \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && pip --no-cache-dir install 'wal-e<1.0.0' envdir \
+    && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
+# Add wale script
 COPY setup-wale.sh /docker-entrypoint-initdb.d/
-COPY docker-entrypoint1.sh /
-RUN chmod +x /docker-entrypoint1.sh
 
-ENTRYPOINT ["/docker-entrypoint1.sh"]
-
+# Add and configure entrypoint and command
+COPY entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["postgres"]
