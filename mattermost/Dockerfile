@@ -2,7 +2,7 @@ FROM ubuntu:16.04
 
 # Some ENV variables
 ENV PATH="/mattermost/bin:${PATH}"
-ENV MM_VERSION=4.1.0
+ENV MM_VERSION=4.8.0
 
 # Install some needed packages
 RUN apt-get update \
