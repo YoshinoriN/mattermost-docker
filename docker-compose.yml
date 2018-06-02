@@ -40,3 +40,5 @@ services:
       - MM_DBNAME=mattermost
       # in case your config is not in default location
       #- MM_CONFIG=/mattermost/config/config.json
+    ports:
+      - "8065:8000"
